@@ -1,5 +1,5 @@
 build:
-	gcc -o FordFulkersonMaxFlor FordFulkersonMaxFlor.c
+	gcc -o FordFulkersonMaxFlow FordFulkersonMaxFlow.c
 
 run:
-	./FordFulkersonMaxFlor
+	./FordFulkersonMaxFlow
