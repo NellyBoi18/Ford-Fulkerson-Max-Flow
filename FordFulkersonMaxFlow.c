@@ -4,58 +4,58 @@
 
 #define MAX_NODES 1000
 
-int graph[MAX_NODES][MAX_NODES]; // adjacency matrix
-int flow[MAX_NODES][MAX_NODES]; // flow on each edge
-int residual[MAX_NODES][MAX_NODES]; // residual capacity on each edge
-int parent[MAX_NODES]; // parent of each node in the augmenting path
-int visited[MAX_NODES]; // flag to mark visited nodes
-int queue[MAX_NODES]; // queue for BFS
+int graph[MAX_NODES][MAX_NODES]; // Adjacency matrix
+int flow[MAX_NODES][MAX_NODES]; // Flow on each edge
+int residual[MAX_NODES][MAX_NODES]; // Residual capacity on each edge
+int parent[MAX_NODES]; // Parent of each node in the augmenting path
+int visited[MAX_NODES]; // Mark visited nodes
+int queue[MAX_NODES]; // Queue for BFS
 
 int min(int a, int b) {
     return a < b ? a : b;
 }
 
 int bfs(int source, int sink, int numNodes) {
-    // initialize visited and parent arrays
+    // Initialize visited and parent arrays
     for (int i = 0; i < numNodes; i++) {
         visited[i] = 0;
         parent[i] = -1;
     }
-
     visited[source] = 1;
 
-    // initialize queue with source node
+    // Initialize queue with source node
     int front = 0, rear = 0;
     queue[rear++] = source;
 
     while (front < rear) {
         int node = queue[front++];
 
-        // visit each neighbor of node
+        // Visit each neighbor of node
         for (int neighbor = 0; neighbor < numNodes; neighbor++) {
-            // if neighbor is not visited and has residual capacity
+            // If neighbor is not visited and has residual capacity
             if (!visited[neighbor] && residual[node][neighbor] > 0) {
-                // mark neighbor as visited and set its parent to node
+                // Mark neighbor as visited and set its parent to node
                 visited[neighbor] = 1;
                 parent[neighbor] = node;
-                // add neighbor to queue
+                // Add neighbor to queue
                 queue[rear++] = neighbor;
 
-                // if neighbor is sink node, return residual capacity
+                // If neighbor is sink node, return residual capacity
                 if (neighbor == sink) {
                     return residual[node][neighbor];
                 }
             }
         }
     }
-    // no augmenting path was found
+
+    // No augmenting path was found
     return 0;
 }
 
-int ford_fulkerson(int source, int sink, int numNodes) {
-    int max_flow = 0;
+int fordFulkerson(int source, int sink, int numNodes) {
+    int maxFlow = 0;
 
-    // initialize flow and residual graph
+    // Initialize flow and residual graph
     for (int i = 0; i < numNodes; i++) {
         for (int j = 0; j < numNodes; j++) {
             flow[i][j] = 0;
@@ -63,57 +63,68 @@ int ford_fulkerson(int source, int sink, int numNodes) {
         }
     }
 
-    // repeat until no augmenting path can be found
+    // Repeat until no augmenting path can be found
     while (1) {
-        int augmenting_flow = bfs(source, sink, numNodes);
+        int augmentingFlow = bfs(source, sink, numNodes);
 
-        if (augmenting_flow == 0) {
+        if (augmentingFlow == 0) {
             break;
         }
 
-        // update flow and residual graph along augmenting path
+        // Update flow and residual graph along augmenting path
         int node = sink;
 
         while (node != source) {
             int prev = parent[node];
-            flow[prev][node] += augmenting_flow;
-            flow[node][prev] -= augmenting_flow;
-            residual[prev][node] -= augmenting_flow;
-            residual[node][prev] += augmenting_flow;
+            flow[prev][node] += augmentingFlow;
+            flow[node][prev] -= augmentingFlow;
+            residual[prev][node] -= augmentingFlow;
+            residual[node][prev] += augmentingFlow;
             node = prev;
         }
 
-        max_flow += augmenting_flow;
+        maxFlow += augmentingFlow;
     }
 
-    return max_flow;
+    return maxFlow;
 }
 
 int main() {
     int numInstances;
     scanf("%d", &numInstances);
+    // Array to store the maximum flow for each instance
+    int *maxFlow = malloc(numInstances * sizeof(int));
 
     for (int i = 0; i < numInstances; i++) {
-        int numNodes, m;
-        scanf("%d %d", &numNodes, &m);
+        int numNodes, numEdges;
+        scanf("%d %d", &numNodes, &numEdges);
 
-        // initialize adjacency matrix
-        for (int j = 0; j < m; j++) {
-            int u, v, capacity;
-            scanf("%d %d %d", &u, &v, &capacity);
-            graph[u-1][v-1] = capacity;
+        // Initialize adjacency matrix
+        for (int j = 0; j < numEdges; j++) {
+            int sourceNode, destNode, capacity;
+            scanf("%d %d %d", &sourceNode, &destNode, &capacity);
+            graph[sourceNode-1][destNode-1] = capacity;
         }
 
-        int max_flow = ford_fulkerson(0, numNodes-1, numNodes);
-        printf("%d\n", max_flow);
+        // int maxFlow = fordFulkerson(0, numNodes-1, numNodes);
+        // printf("%d\n", maxFlow);
 
-        // reset graph for next instance
+        maxFlow[i] = fordFulkerson(0, numNodes-1, numNodes);
+
+        // Reset graph for next instance
         for (int j = 0; j < numNodes; j++) {
             for (int k = 0; k < numNodes; k++) {
                 graph[j][k] = 0;
             }
         }
     }
+
+    // Print out the maximum value for each instance
+    for (int i = 0; i < numInstances; i++) {
+        printf("%d\n", maxFlow[i]);
+    }
+
+    free(maxFlow);
 
     return 0;
 }
