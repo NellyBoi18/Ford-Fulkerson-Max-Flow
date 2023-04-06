@@ -108,7 +108,6 @@ int main() {
 
         // int maxFlow = fordFulkerson(0, numNodes-1, numNodes);
         // printf("%d\n", maxFlow);
-
         maxFlow[i] = fordFulkerson(0, numNodes-1, numNodes);
 
         // Reset graph for next instance
